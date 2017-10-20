@@ -20,7 +20,7 @@ class HalConsole(HalAgent):
 		self.thread.start()
 
 	def receive(self, msg):
-		self.con.chat.append("{}: {}".format(msg.author, msg.body))
+		self.con.chat.append("{}: {}".format(msg.origin, msg.body))
 
 	def _loop(self):
 		self.con.run()
