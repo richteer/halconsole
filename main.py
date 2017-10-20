@@ -21,7 +21,6 @@ class ConsoleWindow():
 	def refresh(self):
 		self.win.box()
 		self.win.addstr(0, 2, self.name)
-		self.logger.info('gerp')
 		self.win.refresh()
 
 	def setpos(self, pos, num):
@@ -58,7 +57,7 @@ class LogWindow(ConsoleWindow):
 		self.buffer = []
 
 	def append(self, msg):
-		self.buffer.insert(0, self.name + " " + msg) # TODO: optimize this
+		self.buffer.insert(0, msg) # TODO: optimize this
 		self.refresh()
 
 	def refresh(self):
@@ -226,23 +225,6 @@ class Console():
 		else:
 			self.inp.handle(c)
 
-
-
-def foo(func):
-	i = 0
-	time.sleep(1)
-	try:
-		while not stop:
-			func("this is a really long line ran " + str(i))
-			i += 1
-			time.sleep(1)
-	except Exception as e:
-		logging.error("Fatal error in main loop", exc_info=True)
-
-
-stop = False
-gblscr = None
-
 def main(stdscr):
 	global gblscr
 
@@ -252,16 +234,7 @@ def main(stdscr):
 
 	con = Console()
 	con.redraw()
-
-	t1 = threading.Thread(target=foo, args=(con.chat.append,))
-	t2 = threading.Thread(target=foo, args=(con.log.append,))
-
-	#t1.start()
-	#t2.start()
-
 	con.handle_input()
 
-	#t1.join()
-	#t2.join()
-
-curses.wrapper(main)
+if __name__ == "__main__":
+	curses.wrapper(main)
