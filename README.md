@@ -4,7 +4,8 @@ A curses-based agent for testing Halibot modules and view the logs simultaneousl
 ## Keybinds
  - `F1`: Toggle the chat window
  - `F2`: Toggle the log window
- 
+ - `END`: Close and shutdown (don't ask)
+
 ## Usage
 Just type away and press enter and your messages will be dispatched to your configured modules.
 Currently there are no options or ways to configure the bot or UI, but that's probably on the way.
