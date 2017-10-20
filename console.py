@@ -5,14 +5,11 @@ import threading
 import time
 import textwrap
 import collections
-import logging
-
-logging.basicConfig(filename="output.log", level=logging.DEBUG)
 
 class ConsoleWindow():
 
-	def __init__(self, name):
-		self.logger = logging.getLogger(name)
+	def __init__(self, con, name):
+		self.con = con
 		self.name = name
 		self.win = None
 		self.pos = -1
@@ -33,7 +30,7 @@ class ConsoleWindow():
 			self.win = None
 		start = self.get_win_start()
 		size = self.get_win_size()
-		self.win = gblscr.subwin(*size, *start)
+		self.win = self.con.stdscr.subwin(*size, *start)
 		self.refresh()
 
 	def get_win_start(self):
@@ -52,8 +49,8 @@ class ConsoleWindow():
 
 class LogWindow(ConsoleWindow):
 
-	def __init__(self, name):
-		super().__init__(name)
+	def __init__(self, con, name):
+		super().__init__(con, name)
 		self.buffer = []
 
 	def append(self, msg):
@@ -102,11 +99,13 @@ class ConsoleInput():
 
 	def __init__(self, con):
 		self.con = con
-		self.win = gblscr.subwin(1, curses.COLS-1, curses.LINES - 2, 0)
 		self.buffer = []
 		self.history = []
 		self.cur = 0
 		self.histcur = -1
+
+	def redraw(self):
+		self.win = self.con.stdscr.subwin(1, curses.COLS-1, curses.LINES - 2, 0)
 
 	def handle(self, c):
 		# Remove one charater at current location
@@ -166,11 +165,9 @@ class ConsoleInput():
 		self.win.refresh()
 
 class Console():
-
 	def __init__(self):
-		self.logger = logging.getLogger("Console")
-		self.chat = LogWindow("Chat")
-		self.log = LogWindow("Log")
+		self.chat = LogWindow(self, "Chat")
+		self.log = LogWindow(self, "Log")
 		self.inp = ConsoleInput(self)
 		# Don't use .enable() for this, no point
 		self.enabled = [self.chat, self.log]
@@ -195,6 +192,7 @@ class Console():
 
 	# This should only be called when either resizing the whole window or a window is toggled
 	def redraw(self):
+		self.inp.redraw()
 		for i in range(len(self.enabled)):
 			self.enabled[i].setpos(i, len(self.enabled))
 			self.enabled[i].redraw()
@@ -210,7 +208,7 @@ class Console():
 	def handle_input(self):
 		self.stop = False
 		while not self.stop:
-			self.input(gblscr.getch())
+			self.input(self.stdscr.getch())
 
 	def input(self, c):
 		if c == curses.KEY_RESIZE:
@@ -225,16 +223,18 @@ class Console():
 		else:
 			self.inp.handle(c)
 
-def main(stdscr):
-	global gblscr
+	# Call this to initialize the menu
+	def run(self):
+		curses.wrapper(self._main)
 
-	gblscr = stdscr
-	gblscr.clear()
-	gblscr.refresh()
+	def _main(self, stdscr):
+		self.stdscr = stdscr
+		stdscr.clear()
+		stdscr.refresh()
 
-	con = Console()
-	con.redraw()
-	con.handle_input()
+		self.redraw()
+		self.handle_input()
 
 if __name__ == "__main__":
-	curses.wrapper(main)
+	con = Console()
+	con.run()
