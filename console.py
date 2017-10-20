@@ -5,6 +5,16 @@ import threading
 import time
 import textwrap
 import collections
+import logging
+
+class HCHandler(logging.Handler):
+	def __init__(self, con):
+		super().__init__()
+		self.con = con
+		self.setFormatter(logging.Formatter(fmt="{levelname}:{name}:{message}", style="{"))
+
+	def emit(self, record):
+		self.con.log.append(self.format(record))
 
 class ConsoleWindow():
 
@@ -232,8 +242,14 @@ class Console():
 		stdscr.clear()
 		stdscr.refresh()
 
+		hdlr = HCHandler(self)
+		logging.getLogger().addHandler(hdlr)
+
 		self.redraw()
 		self.handle_input()
+
+		logging.getLogger().removeHandler(hdlr)
+
 
 if __name__ == "__main__":
 	con = Console()
