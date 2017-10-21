@@ -116,7 +116,7 @@ class ConsoleInput():
 		self.histcur = -1
 
 	def redraw(self):
-		self.win = self.con.stdscr.subwin(1, curses.COLS-1, curses.LINES - 2, 0)
+		self.win = self.con.stdscr.subwin(1, curses.COLS - 4, curses.LINES - 2, 4)
 
 	def handle(self, c):
 		# Remove one charater at current location
@@ -203,6 +203,7 @@ class Console():
 
 	# This should only be called when either resizing the whole window or a window is toggled
 	def redraw(self):
+		self.stdscr.addstr(curses.LINES - 2, 1, ">>")
 		self.inp.redraw()
 		for i in range(len(self.enabled)):
 			self.enabled[i].setpos(i, len(self.enabled))
