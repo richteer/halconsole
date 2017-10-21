@@ -41,6 +41,7 @@ class ConsoleWindow():
 		start = self.get_win_start()
 		size = self.get_win_size()
 		self.win = self.con.stdscr.subwin(*size, *start)
+		self.win.clear()
 		self.refresh()
 
 	def get_win_start(self):
@@ -177,6 +178,7 @@ class ConsoleInput():
 
 class Console():
 	def __init__(self):
+		self.logger = logging.getLogger("Console")
 		self.chat = LogWindow(self, "Chat")
 		self.log = LogWindow(self, "Log")
 		self.inp = ConsoleInput(self)
@@ -203,11 +205,12 @@ class Console():
 
 	# This should only be called when either resizing the whole window or a window is toggled
 	def redraw(self):
-		self.stdscr.addstr(curses.LINES - 2, 1, ">>")
+		self.stdscr.clear()
 		self.inp.redraw()
 		for i in range(len(self.enabled)):
 			self.enabled[i].setpos(i, len(self.enabled))
 			self.enabled[i].redraw()
+		self.stdscr.addstr(curses.LINES - 2, 1, ">>")
 
 	# Deliver message to chat from user
 	def send(self, msg):
@@ -225,7 +228,8 @@ class Console():
 	def input(self, c):
 		if c == curses.KEY_RESIZE:
 			curses.update_lines_cols()
-			self.con.redraw()
+			self.logger.debug("resizing")
+			self.redraw()
 		elif c == curses.KEY_END:
 			self.stop = True
 		elif c == curses.KEY_F1:
