@@ -64,7 +64,8 @@ class LogWindow(ConsoleWindow):
 		self.buffer = []
 
 	def append(self, msg):
-		self.buffer.insert(0, msg) # TODO: optimize this
+		for m in msg.split("\n")[::-1]:
+			self.buffer.insert(0, m) # TODO: optimize this
 		self.refresh()
 
 	def refresh(self):
